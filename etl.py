@@ -94,7 +94,7 @@ def bathroom_counter(row):
 
 
 
-def transform_zillow(df):
+def transform(df):
     """
     This is the transform function for the Zillow data set. It transforms a data frame from the raw form extracted in
     the extract_xml function into the form that the CSV calls for.
@@ -196,6 +196,6 @@ if __name__ == "__main__":
 
 
     a = extract_xml(xml_filename, columns, '/Listings/Listing')
-    b = transform_zillow(a)
+    b = transform(a)
     load_csv(b, csv_filename, output_columns)
 

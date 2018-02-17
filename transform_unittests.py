@@ -30,22 +30,22 @@ class TestTransform(unittest.TestCase):
 
     def test_bathrooms_field(self):
         df = pd.DataFrame(self.json)
-        df = etl.transform_zillow(df)
+        df = etl.transform(df)
         self.assertEqual(df.iloc[0]['Bathrooms'], 3.5)
 
     def test_bathrooms_calc_field(self):
         df = pd.DataFrame(self.json)
-        df = etl.transform_zillow(df)
+        df = etl.transform(df)
         self.assertEqual(df.iloc[1]['Bathrooms'], 3)
 
     def test_bathrooms_field_na(self):
         df = pd.DataFrame(self.json)
-        df = etl.transform_zillow(df)
+        df = etl.transform(df)
         self.assertTrue(pd.isnull(df.iloc[2]['Bathrooms']))
 
     def test_description_trunc(self):
         df = pd.DataFrame(self.json)
-        df = etl.transform_zillow(df)
+        df = etl.transform(df)
         self.assertEqual(len(df.iloc[0]['Description']),200)
 ''' 
     def test_empty_files(self):
