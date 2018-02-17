@@ -1,6 +1,7 @@
 import unittest
 import etl
 import lxml 
+import pandas as pd
 class TestExtract(unittest.TestCase):
  
     def setUp(self):
@@ -18,8 +19,7 @@ class TestExtract(unittest.TestCase):
         columns  = [{'name':'grandchildnode1','xpath':'string(grandchildnode1/text())','vtype':'scalar'},
                     {'name':'grandchildnode2','xpath':'string(grandchildnode2/text())','vtype':'scalar'},
                     {'name':'grandchildnode3','xpath':'grandchildnode3/*/text()','vtype':'list'}]
-        self.assertTrue(False)
-        self.assertRaises(lxml.etree.XMLSyntaxError, etl.extract_xml(self.empty_filename, columns, self.context))
+        self.assertEqual(len(etl.extract_xml(self.filename, columns, 'nonexistant-context')), 0)
 
     def test_empty_files(self):
         columns  = [{'name':'grandchildnode1','xpath':'string(grandchildnode1/text())','vtype':'scalar'},
@@ -36,7 +36,8 @@ class TestExtract(unittest.TestCase):
                     {'name':'grandchildnode3','xpath':'grandchildnode3/*/text()','vtype':'list'}]
         df = etl.extract_xml(self.filename, columns, self.context)
         self.assertEqual(df.iloc[0]['grandchildnode3'], "3,4")
-        self.assertEqual(df.iloc[1]['grandchildnode3'], "3")
+        self.assertEqual(df.iloc[1]['grandchildnode3'], "7")
+        self.assertTrue(pd.isnull(df.iloc[2]['grandchildnode3']) )
 
     def test_scalar_extraction(self):
         columns  = [{'name':'grandchildnode1','xpath':'string(grandchildnode1/text())','vtype':'scalar'},

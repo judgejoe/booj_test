@@ -26,24 +26,25 @@ class TestTransform(unittest.TestCase):
                         {'name' : 'Appliances',            'xpath' : 'RichDetails/Appliances/*/text()',                   'vtype' : 'list'},
                         {'name' : 'Rooms',                 'xpath' : 'RichDetails/Rooms/*/text()',                        'vtype' : 'list'}]
 
+        self.json = {"MlsId":{"0":"14799273","1":"14802845","2":"14802846"},"MlsName":{"0":"CLAW","1":"CLAW","2":"CLAP"},"DateListed":{"0":"2014-10-03 00:00:00","1":"2014-10-17 00:00:00","2":"2014-10-17 00:00:00"},"StreetAddress":{"0":"0 Castro Peak Mountainway","1":"0 SADDLE PEAK RD","2":"0 SADDLE PEAK RD"},"City":{"0":"Malibu","1":"Malibu","2":"Malibu"},"State":{"0":"CA","1":"CA","2":"CA"},"Zip":{"0":"90265","1":"90290","2":"90290"},"Price":{"0":"535000.00","1":"200000.00","2":"200000.00"},"Bedrooms":{"0":0.0,"1":0.0,"2":0.0},"Bathrooms_raw":{"0":3.5,"1":None,"2":None},"FullBathrooms":{"0":3.0,"1":2.0,"2":None},"HalfBathrooms":{"0":1.0,"1":1.0,"2":None},"ThreeQuarterBathrooms":{"0":None,"1":None,"2":None},"Full_Description":{"0":"Enjoy amazing ocean and island views from this 10+ acre parcel situated in a convenient and peaceful area of the Santa Monica mountains. Just minutes from beaches or the 101, Castro Peak is located off of Latigo canyon in an area sprinkled with vineyards, ranches and horse properties. A paved road leads you to the site which features considerable useable land and multiple development areas. This is an area of new development. Build your dream.","1":"Spectacular views from this 4+ acre property perched on the ridge between PCH and the Valley. Two APNs - 4438-034-037 and 031 being sold together. Plus, there is a lot next door for sale too! A, paved private road leads you almost to the site. This lot has development challenges - not for the faint of heart. Property has been owned by the same family for over 40 years. Reports and information is limited.","2":"Spectacular views from this 4+ acre property perched on the ridge between PCH and the Valley. Two APNs - 4438-034-037 and 031 being sold together. Plus, there is a lot next door for sale too! A, paved private road leads you almost to the site. This lot has development challenges - not for the faint of heart. Property has been owned by the same family for over 40 years. Reports and information is limited."},"Appliances":{"0":None,"1":None,"2":None},"Rooms":{"0":None,"1":None,"2":None}}
 
     def test_bathrooms_field(self):
-        df = etl.extract_xml(self.filename, self.columns, self.context)
+        df = pd.DataFrame(self.json)
         df = etl.transform_zillow(df)
         self.assertEqual(df.iloc[0]['Bathrooms'], 3.5)
 
     def test_bathrooms_calc_field(self):
-        df = etl.extract_xml(self.filename, self.columns, self.context)
+        df = pd.DataFrame(self.json)
         df = etl.transform_zillow(df)
         self.assertEqual(df.iloc[1]['Bathrooms'], 3)
 
     def test_bathrooms_field_na(self):
-        df = etl.extract_xml(self.filename, self.columns, self.context)
+        df = pd.DataFrame(self.json)
         df = etl.transform_zillow(df)
         self.assertTrue(pd.isnull(df.iloc[2]['Bathrooms']))
 
     def test_description_trunc(self):
-        df = etl.extract_xml(self.filename, self.columns, self.context)
+        df = pd.DataFrame(self.json)
         df = etl.transform_zillow(df)
         self.assertEqual(len(df.iloc[0]['Description']),200)
 ''' 

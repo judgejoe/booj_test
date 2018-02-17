@@ -20,18 +20,22 @@ def get_rows(listings, cols):
         for col in cols:
             # Extract the element using the column's xpath
             value = child.xpath(col['xpath'])
-            if col['ctype'] == 'scalar':
+            if col['vtype'] == 'scalar':
                 # if it's a scalar, just append it
-                if type(value) != lxml.etree._ElementUnicodeResult and                    type(value) != float and                    type(value) != int:
-                    raise TypeError("ctype doesn't match value ctype: " + cols['ctype'] + " value: " + str(type(value)))
+                if type(value) != lxml.etree._ElementUnicodeResult and \
+                   type(value) != float and \
+                   type(value) != int:
+                    raise TypeError("vtype doesn't match value vtype: " + col['vtype'] + " value: " + str(type(value)))
                 row.append(value if value != '' else np.nan)
-            elif col['ctype'] == 'list':
+            elif col['vtype'] == 'list':
                 # if it's a list of sub nodes, grab them, join them with a comma,
                 # then insert as a string
                 if type(value) != list:
-                    raise TypeError("ctype doesn't match value" + cols['ctype'] + " value: " + str(type(value)))
+                    raise TypeError("vtype doesn't match value" + col['vtype'] + " value: " + str(type(value)))
                 row.append(",".join(value) if len(value) > 0 else np.nan)
-        rows.append(row)
+
+        if(len(row) > 0):
+            rows.append(row)
     return rows
 
 
@@ -47,7 +51,7 @@ def extract_xml(filename, columns, path_to_listings):
                         xpath - the XPath statement used to extract the data element from the XML. For scalars the
                                 XPath statement must return a single scalar value. For lists, the XPath statement must
                                 return a list.
-                        ctype - collection type. Must be either scalar or list. Scalars will be inserted into the 
+                        vtype - collection type. Must be either scalar or list. Scalars will be inserted into the 
                                 returned Dataframe as they are read from the file. Their type will be inferred by 
                                 Pandas. Lists will have their elements concatenated with a comma and then be inserted 
                                 into the dataframe as a string (dtype object)
@@ -111,8 +115,8 @@ def transform_zillow(df):
     :raises: None
     """
     # Fill in nan values
-    df['Rooms']               = df['Rooms'].fillna('')
-    df['Appliances']          = df['Appliances'].fillna('')
+    #df['Rooms']               = df['Rooms'].fillna('')
+    #df['Appliances']          = df['Appliances'].fillna('')
     df['Full_Description']    = df['Full_Description'].fillna('')
     df['StreetAddress']       = df['StreetAddress'].fillna('')
     
@@ -122,9 +126,11 @@ def transform_zillow(df):
     # fractionally would give ambiguous results (i.e. 2 half baths are two separate bathrooms but counted fractionally
     # would be 1 bathroom)
 
-    df['bathrooms_calc']      = df['HalfBathrooms'].fillna(0).astype('int') +
-                                df['FullBathrooms'].fillna(0).astype('int') +
+    df['bathrooms_calc']      = df['HalfBathrooms'].fillna(0).astype('int') + \
+                                df['FullBathrooms'].fillna(0).astype('int') + \
                                 df['ThreeQuarterBathrooms'].fillna(0).astype('int')
+
+    df['bathrooms_calc'] = df['bathrooms_calc'].apply(lambda x: x if x !=0 else np.nan)
     
     # Fill in the final bathrooms field with either the value given in the bathrooms field
     # or, if that is missing, the calculated field from above
@@ -150,8 +156,19 @@ def load_csv(df, filename, cols):
 
 
 
-if __name__ = "__main__":
-
+if __name__ == "__main__":
+    xml_filename = 'http://syndication.enterprise.websiteidx.com/feeds/BoojCodeTest.xml' 
+    csv_filename = 'zillow.csv'
+    output_columns = [  'MlsId', 
+                        'MlsName',
+                        'DateListed',
+                        'StreetAddress', 
+                        'Price', 
+                        'Bedrooms', 
+                        'Bathrooms',
+                        'Appliances', 
+                        'Rooms', 
+                        'Description']
     ''' 
     The column spec used by the extract function. This is how our extract process will know 
         a) the name of the columns to use in the data frame
@@ -160,25 +177,25 @@ if __name__ = "__main__":
         d) whether the XPath returns a scalar or list -- these types will need to be processed separately
     '''
 
-    columns = [{'name' : 'MlsId',                 'xpath' : 'string(ListingDetails/MlsId/text())',               'ctype' : 'scalar'},
-               {'name' : 'MlsName',               'xpath' : 'string(ListingDetails/MlsName/text())',             'ctype' : 'scalar'},
-               {'name' : 'DateListed',            'xpath' : 'string(ListingDetails/DateListed/text())',          'ctype' : 'scalar'},
-               {'name' : 'StreetAddress',         'xpath' : 'string(Location/StreetAddress/text())',             'ctype' : 'scalar'},
-               {'name' : 'City',                  'xpath' : 'string(Location/City/text())',                      'ctype' : 'scalar'},
-               {'name' : 'State',                 'xpath' : 'string(Location/State/text())',                     'ctype' : 'scalar'},
-               {'name' : 'Zip',                   'xpath' : 'string(Location/Zip/text())',                       'ctype' : 'scalar'},
-               {'name' : 'Price',                 'xpath' : 'string(ListingDetails/Price/text())',               'ctype' : 'scalar'},
-               {'name' : 'Bedrooms',              'xpath' : 'number(BasicDetails/Bedrooms/text())',              'ctype' : 'scalar'},
-               {'name' : 'Bathrooms_raw',         'xpath' : 'number(BasicDetails/Bathrooms/text())',             'ctype' : 'scalar'},
-               {'name' : 'FullBathrooms',         'xpath' : 'number(BasicDetails/FullBathrooms/text())',         'ctype' : 'scalar'},
-               {'name' : 'HalfBathrooms',         'xpath' : 'number(BasicDetails/HalfBathrooms/text())',         'ctype' : 'scalar'},
-               {'name' : 'ThreeQuarterBathrooms', 'xpath' : 'string(BasicDetails/ThreeQuarterBathrooms/text())', 'ctype' : 'scalar'},
-               {'name' : 'Full_Description',      'xpath' : 'string(BasicDetails/Description/text())',           'ctype' : 'scalar'},
-               {'name' : 'Appliances',            'xpath' : 'RichDetails/Appliances/*/text()',                   'ctype' : 'list'},
-               {'name' : 'Rooms',                 'xpath' : 'RichDetails/Rooms/*/text()',                        'ctype' : 'list'}]
+    columns = [{'name' : 'MlsId',                 'xpath' : 'string(ListingDetails/MlsId/text())',               'vtype' : 'scalar'},
+               {'name' : 'MlsName',               'xpath' : 'string(ListingDetails/MlsName/text())',             'vtype' : 'scalar'},
+               {'name' : 'DateListed',            'xpath' : 'string(ListingDetails/DateListed/text())',          'vtype' : 'scalar'},
+               {'name' : 'StreetAddress',         'xpath' : 'string(Location/StreetAddress/text())',             'vtype' : 'scalar'},
+               {'name' : 'City',                  'xpath' : 'string(Location/City/text())',                      'vtype' : 'scalar'},
+               {'name' : 'State',                 'xpath' : 'string(Location/State/text())',                     'vtype' : 'scalar'},
+               {'name' : 'Zip',                   'xpath' : 'string(Location/Zip/text())',                       'vtype' : 'scalar'},
+               {'name' : 'Price',                 'xpath' : 'string(ListingDetails/Price/text())',               'vtype' : 'scalar'},
+               {'name' : 'Bedrooms',              'xpath' : 'number(BasicDetails/Bedrooms/text())',              'vtype' : 'scalar'},
+               {'name' : 'Bathrooms_raw',         'xpath' : 'number(BasicDetails/Bathrooms/text())',             'vtype' : 'scalar'},
+               {'name' : 'FullBathrooms',         'xpath' : 'number(BasicDetails/FullBathrooms/text())',         'vtype' : 'scalar'},
+               {'name' : 'HalfBathrooms',         'xpath' : 'number(BasicDetails/HalfBathrooms/text())',         'vtype' : 'scalar'},
+               {'name' : 'ThreeQuarterBathrooms', 'xpath' : 'string(BasicDetails/ThreeQuarterBathrooms/text())', 'vtype' : 'scalar'},
+               {'name' : 'Full_Description',      'xpath' : 'string(BasicDetails/Description/text())',           'vtype' : 'scalar'},
+               {'name' : 'Appliances',            'xpath' : 'RichDetails/Appliances/*/text()',                   'vtype' : 'list'},
+               {'name' : 'Rooms',                 'xpath' : 'RichDetails/Rooms/*/text()',                        'vtype' : 'list'}]
 
 
-    a = extract_xml('BoojCodeTest.xml', columns, '/Listings/Listing')
+    a = extract_xml(xml_filename, columns, '/Listings/Listing')
     b = transform_zillow(a)
-    load_csv(b, 'zillow.csv', ['MlsId', 'MlsName','DateListed','StreetAddress', 'Price', 'Bedrooms', 'Bathrooms','Appliances', 'Rooms', 'Description'])
+    load_csv(b, csv_filename, output_columns)
 
