@@ -1,6 +1,6 @@
 # booj_test
 
-Hi! Thanks for taking the time to read the README! 
+Hi! Thanks for taking the time to read the README. Below you'll find information that explains the approach, some of the decisions I made and info about execution and testing
 
 ## Approach
 This section explains some of the design and implementation decisions made during the assignment. My solution uses lxml for XML parsing. Given the relatively small size of the data set, Pandas for data manipulation and loading. Pandas was also chosen for performance. There are several places where high performance Pandas functions were used instead of costly iteration. There are 3 main functions in the solution: `extract_xml:_xml()`, `transform()`, and `load_csv()`. `extract_xml()` is flexible enough to extract from any XML document using it's column configuration (see code for full explanation). `transform()` handles the manipulation of data needed for the zillow data set. It is very specific to the data set in the assignemt, but that's expected since transformations will for the most part be specific to a dataset. `load_csv()` outputs a CSV file. It is flexible taking as parameters a DataFrame, filename and list of columns.
