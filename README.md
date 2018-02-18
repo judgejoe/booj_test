@@ -15,3 +15,31 @@ Note if no there is no information at all on any bathrooms, a null (nan, None) v
 ## Unit Tests
 Unit tests were written to exercise the extract, transform and load functions and their helper functions. Tests were built using Python's unittest framework. There are 3 separate files, one each for extract, transform, and load functions. Tests were written to cover the main functions of the assignment but coverage is not 100% complete. With more time tests would be written covering handling of error cases such as mixing types in a given field, load failures, File Not Found errors and the like. 
 
+## Execution
+`etl.py` was successfully run on an AWS t2.micro instance using the Ubuntu image and Python 2.7.12.
+
+    $ python --version
+    Python 2.7.12
+    ubuntu@ip-10-0-0-6:~/booj_test$ python etl.py
+    ubuntu@ip-10-0-0-6:~/booj_test$ ls -lt zillow.csv 
+    -rw-rw-r-- 1 ubuntu ubuntu 68992 Feb 18 00:29 zillow.csv
+    ubuntu@ip-10-0-0-6:~/booj_test$ cd tests 
+    ubuntu@ip-10-0-0-6:~/booj_test$ python extract_unittests.py 
+    .......
+    ----------------------------------------------------------------------
+    Ran 7 tests in 0.006s
+    
+    OK
+    ubuntu@ip-10-0-0-6:~/booj_test$ python transform_unittests.py 
+    ....
+    ----------------------------------------------------------------------
+    Ran 4 tests in 0.024s
+    
+    OK
+    ubuntu@ip-10-0-0-6:~/booj_test$ python load_unittests.py 
+    .test.csv
+    ..
+    ----------------------------------------------------------------------
+    Ran 3 tests in 0.023s
+    
+    OK
