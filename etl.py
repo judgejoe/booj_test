@@ -23,15 +23,16 @@ def get_rows(listings, cols):
             if col['vtype'] == 'scalar':
                 # if it's a scalar, just append it
                 if type(value) != lxml.etree._ElementUnicodeResult and \
+                   type(value) != lxml.etree._ElementStringResult and \
                    type(value) != float and \
                    type(value) != int:
-                    raise TypeError("vtype doesn't match value vtype: " + col['vtype'] + " value: " + str(type(value)))
+                    raise TypeError("vtype doesn't match value. col name: " +col['name'] + " col vtype: " + col['vtype'] + " value: " + str(type(value)))
                 row.append(value if value != '' else np.nan)
             elif col['vtype'] == 'list':
                 # if it's a list of sub nodes, grab them, join them with a comma,
                 # then insert as a string
                 if type(value) != list:
-                    raise TypeError("vtype doesn't match value" + col['vtype'] + " value: " + str(type(value)))
+                    raise TypeError("vtype doesn't match value. col name: " +col['name'] + " col vtype: " + col['vtype'] + " value: " + str(type(value)))
                 row.append(",".join(value) if len(value) > 0 else np.nan)
 
         if(len(row) > 0):
