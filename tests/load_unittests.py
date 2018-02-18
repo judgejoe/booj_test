@@ -1,9 +1,12 @@
 import unittest
-import etl
 import lxml 
 import pandas as pd
 import numpy as np
 import os
+import sys
+
+sys.path.append('../')
+import etl
 
 class TestLoad(unittest.TestCase):
  

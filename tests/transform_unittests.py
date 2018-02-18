@@ -1,7 +1,10 @@
 import unittest
-import etl
 import lxml 
 import pandas as pd
+import sys
+
+sys.path.append('../')
+import etl
 
 class TestTransform(unittest.TestCase):
  

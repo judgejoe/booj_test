@@ -1,12 +1,16 @@
 import unittest
-import etl
 import lxml 
 import pandas as pd
+import sys
+
+sys.path.append("../")
+import etl
+
 class TestExtract(unittest.TestCase):
  
     def setUp(self):
-        self.empty_filename = 'test_data/empty.xml'
-        self.filename = 'test_data/test.xml'
+        self.empty_filename = '../test_data/empty.xml'
+        self.filename = '../test_data/test.xml'
         self.context = '/rootnode/child'
 
     def test_line_numbers(self):
