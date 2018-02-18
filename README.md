@@ -16,7 +16,7 @@ Note if no there is no information at all on any bathrooms, a null (nan, None) v
 Unit tests were written to exercise the extract, transform and load functions and their helper functions. Tests were built using Python's unittest framework. There are 3 separate files, one each for extract, transform, and load functions. Tests were written to cover the main functions of the assignment but coverage is not 100% complete. With more time tests would be written covering handling of error cases such as mixing types in a given field, load failures, File Not Found errors and the like. 
 
 ## Execution
-`etl.py` was successfully run on an AWS t2.micro instance using the Ubuntu image and Python 2.7.12.
+`etl.py` was successfully run on 2/17/18 on an AWS t2.micro instance using the Ubuntu image and Python 2.7.12.
 
     $ python --version
     Python 2.7.12
